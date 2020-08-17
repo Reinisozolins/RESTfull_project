@@ -1,9 +1,12 @@
 package lv.ozo.awsspringtest.ui.controllers;
 
 import lv.ozo.awsspringtest.ui.exceptions.UserServiceException;
+import lv.ozo.awsspringtest.ui.impl.UserServiceImpl;
 import lv.ozo.awsspringtest.ui.model.UpdateUserDetailsRequestModel;
 import lv.ozo.awsspringtest.ui.model.UserDetailsRequestModel;
 import lv.ozo.awsspringtest.ui.model.UserRest;
+import lv.ozo.awsspringtest.ui.userservice.UserServiceInterface;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -21,12 +24,14 @@ public class UserControllers {
 
     Map<String, UserRest> users;
 
+    @Autowired
+    UserServiceInterface userServiceInterface;
+
     @GetMapping
     public String getUsers(@RequestParam(value = "page", defaultValue = "1") int page,
                            @RequestParam(value = "limit", defaultValue = "20") int limit,
-                           @RequestParam(value = "sort", required = false)String sort)
-    {
-        if (sort == null) sort ="desc";
+                           @RequestParam(value = "sort", required = false) String sort) {
+        if (sort == null) sort = "desc";
         return "get user was called with  page = " + page + "and limit = " + limit + "and sort " + sort;
     }
 
@@ -87,19 +92,24 @@ public class UserControllers {
             }
     )
 
-    public ResponseEntity<UserRest> createUser(@Valid @RequestBody UserDetailsRequestModel userDetails)
-    {
-        UserRest returnValue = new UserRest();
-        returnValue.setEmail(userDetails.getEmail());
-        returnValue.setFirstName(userDetails.getFirstName());
-        returnValue.setLastName(userDetails.getLastName());
+    public ResponseEntity<UserRest> createUser(@Valid @RequestBody UserDetailsRequestModel userDetails) {
+//        Moved to UserServiceImpl
 
-//        check if there is not users, than create new
-        String userID = UUID.randomUUID().toString();
-        returnValue.setUserID(userID);
+//        UserRest returnValue = new UserRest();
+//        returnValue.setEmail(userDetails.getEmail());
+//        returnValue.setFirstName(userDetails.getFirstName());
+//        returnValue.setLastName(userDetails.getLastName());
+//
+////        check if there is not users, than create new
+//        String userID = UUID.randomUUID().toString();
+//        returnValue.setUserID(userID);
+//
+//        if (users == null ) users = new HashMap<>();
+//        users.put(userID, returnValue);
 
-        if (users == null ) users = new HashMap<>();
-        users.put(userID, returnValue);
+//        I add userServiceInterface so don't need any more
+//        UserRest returnValue = new UserServiceImpl().createUser(userDetails);
+        UserRest returnValue = userServiceInterface.createUser(userDetails);
         return new ResponseEntity<UserRest>(returnValue, HttpStatus.OK);
     }
 
